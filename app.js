@@ -50,82 +50,11 @@ app.post('/post', async (req, res) => {
   }
 });
 
-app.get('/group', async (req, res) => {
-    // - [ ] Connect database
+app.get('/groups', async (req, res) => {
     await client.connect();
     const db = client.db(process.env.DATABASE_NAME);
-    // - [ ] Select collection
-    // const responsesCollection = db.collection('responses');
-    const responsesCollection = [
-      {
-        "consent": true,
-        "user": {
-          "name": "baran",
-          "surname": "toro",
-          "gender": "male",
-          "email": "torobarn@gmail.com",
-          "phone": "+49 174 883 13 37"
-        },
-        "data": {
-          "group": "1",
-          "productId": 1,
-          "productName": "Lewis 501",
-          "sustainable": false,
-          "price": "700-750",
-        }
-      },
-      {
-        "consent": true,
-        "user": {
-          "name": "baran",
-          "surname": "toro",
-          "gender": "male",
-          "email": "torobarn@gmail.com",
-          "phone": "+49 174 883 13 37"
-        },
-        "data": {
-          "group": "1",
-          "productId": 1,
-          "productName": "Lewis 501",
-          "sustainable": false,
-          "price": "700-750",
-        }
-      },
-      {
-        "consent": true,
-        "user": {
-          "name": "baran",
-          "surname": "toro",
-          "gender": "male",
-          "email": "torobarn@gmail.com",
-          "phone": "+49 174 883 13 37"
-        },
-        "data": {
-          "group": "2",
-          "productId": 1,
-          "productName": "Lewis 501",
-          "sustainable": false,
-          "price": "700-750",
-        }
-      }
-    ]
-    // - [ ] Get number of respondents
-    const totalResponse = responsesCollection.length
-    // - [ ] Get number of each groups
-    var group1 = []
-    var group2 = []
-    for (let index = 0; index < responsesCollection.length; index++) {
-      const element = responsesCollection[index];
-      element.data.group === '1' ? group1.push(element) : group2.push(element)
-    }
-    // - [ ] Get ID of the group with fewest respondents
-    let id;
-    console.log(group1)
-    console.log('$$$$$$$$$')
-    console.log(group2)
-    group1.length>group2.length ? id = group2[0].data.group : group1[0].data.group
-    // - [ ] Return ID
-    res.status(200).json({ groupID: id });
+    const groupsCollection = await db.collection('groups').findOne({ _id: new ObjectId('667349dd024d34055410505b') });
+    res.status(200).json({ groupsCollection });
 })
 
 http.listen(PORT, () => {
