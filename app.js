@@ -24,6 +24,7 @@ app.post('/post', async (req, res) => {
     const db = client.db(process.env.DATABASE_NAME);
     // Select the responses collection
     const responsesCollection = db.collection('responses');
+    const groupsCollection = await db.collection('groups');
 
     const respondent = await responsesCollection.findOne({ 'user.email': user.email });
     
@@ -39,9 +40,18 @@ app.post('/post', async (req, res) => {
     };
 
     // Insert the new response document
-    const result = await responsesCollection.insertOne(newResponse);
-
+    // const result = await responsesCollection.insertOne(newResponse);
     // console.log(result)
+    await responsesCollection.insertOne(newResponse);
+
+    const groupField = data.group;  // data.group'dan gelen string
+    const incrementValue = 1;       // Artış değeri (1)
+
+    // Update groups
+    await groupsCollection.updateOne(
+      { _id: new ObjectId('667349dd024d34055410505b') },
+      { $inc: { [groupField]: incrementValue } }
+    );
 
     res.status(200).json({ message: 'Thank you for completing the survey!' });
   } catch (err) {
@@ -50,11 +60,34 @@ app.post('/post', async (req, res) => {
   }
 });
 
-app.get('/groups', async (req, res) => {
+app.get('/group', async (req, res) => {
+  try{
     await client.connect();
     const db = client.db(process.env.DATABASE_NAME);
     const groupsCollection = await db.collection('groups').findOne({ _id: new ObjectId('667349dd024d34055410505b') });
-    res.status(200).json({ groupsCollection });
+
+    // Exclude _id 
+    const { _id, ...values } = groupsCollection;
+
+    // To array
+    const valueArray = Object.values(values);
+
+    // Find min value
+    const minValue = Math.min(...valueArray);
+
+    // Find min value keys
+    const keysWithMinValue = Object.keys(values).filter(key => values[key] === minValue);
+
+    // Random
+    const randomKey = keysWithMinValue[Math.floor(Math.random() * keysWithMinValue.length)];
+
+    // console.log(randomKey, minValue);
+
+    res.status(200).json({ data: randomKey });
+  } catch(error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error.' });
+  }
 })
 
 http.listen(PORT, () => {
