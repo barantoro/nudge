@@ -17,7 +17,7 @@ const client = new MongoClient(process.env.DATABASE_URL, { useUnifiedTopology: t
  
 app.post('/post', async (req, res) => {
   try {
-    const { consent, user, data } = req.body;
+    const { consent, user, data, estimatedDuration } = req.body;
     // Connect to the MongoDB Atlas cluster
     await client.connect();
     // Select the database
@@ -35,6 +35,7 @@ app.post('/post', async (req, res) => {
     const newResponse = {
       _id: new ObjectId(),
       consent: consent,
+      estimatedDuration: estimatedDuration,
       user: user,
       data: data,
     };
